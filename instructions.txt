@@ -1,0 +1,135 @@
+### Pré-requisito: Projeto Node.js
+Vou assumir que você já tem um projeto Node.js iniciado. Se não, crie uma pasta nova e rode npm init -y dentro dela.
+
+#### Passo 1: Instalar o Prisma
+Você precisa de duas bibliotecas: o Prisma CLI (para gerenciar o banco de dados) e o Prisma Client (para usar no seu código).
+
+Abra o terminal na pasta do seu projeto e instale-os:
+
+Bash
+
+# Instala o Prisma Client
+npm install @prisma/client
+
+# Instala o Prisma CLI como uma dependência de desenvolvimento
+npm install prisma --save-dev
+#### Passo 2: Iniciar o Prisma no seu Projeto
+Agora, peça ao Prisma para criar os arquivos de configuração para você.
+
+Bash
+
+npx prisma init
+Este comando magicamente fará duas coisas:
+
+Criará uma pasta prisma com um arquivo schema.prisma dentro.
+
+Criará um arquivo .env na raiz do seu projeto para guardar a senha do banco de dados de forma segura.
+
+#### Passo 3: Configurar a Conexão com o Banco de Dados
+Esta é a etapa crucial onde você informa ao Prisma como encontrar seu banco de dados.
+
+Abra o arquivo .env que foi criado.
+
+Você verá uma linha começando com DATABASE_URL=.
+
+Altere esta linha para corresponder exatamente à configuração do seu PostgreSQL. O formato é: postgresql://USUARIO:SENHA@HOST:PORTA/NOME_DO_BANCO
+
+Usando as informações que configuramos, a sua linha ficará assim:
+
+Snippet de código
+
+DATABASE_URL="postgresql://admin:admin@localhost:5432/meubanco"
+O arquivo prisma/schema.prisma já está configurado para ler essa variável, então você não precisa alterá-lo.
+
+#### Passo 4: Modele seus Dados no schema.prisma
+Agora, a parte divertida. Abra o arquivo prisma/schema.prisma e defina como serão suas tabelas.
+
+Vamos criar um modelo simples de User (Usuário) e Post. Apague o conteúdo de exemplo e adicione o seguinte:
+
+Snippet de código
+
+// Este é o seu arquivo Prisma schema,
+// aprenda mais sobre ele em https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// SEUS MODELOS DE DADOS COMEÇAM AQUI
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+model User criará uma tabela User.
+
+model Post criará uma tabela Post.
+
+A linha posts Post[] e @relation criam automaticamente o relacionamento entre as tabelas.
+
+#### Passo 5: Migre o Banco de Dados
+Este comando vai ler seu schema.prisma e criar as tabelas User and Post no seu banco de dados meubanco.
+
+Bash
+
+npx prisma migrate dev --name init
+migrate dev: Cria uma nova migração para o ambiente de desenvolvimento.
+
+--name init: Dá um nome para esta primeira migração.
+
+O Prisma vai gerar o código SQL e aplicá-lo ao seu banco de dados. Ele também irá gerar o Prisma Client totalmente tipado para você usar no próximo passo.
+
+#### Passo 6: Use o Prisma Client no seu Código!
+Agora você está pronto para escrever código que conversa com o banco de dados. Crie um arquivo index.js (ou index.ts se estiver usando TypeScript) e coloque o seguinte código de exemplo:
+
+JavaScript
+
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+async function main() {
+  // Criar um novo usuário
+  console.log('Criando um novo usuário...');
+  const newUser = await prisma.user.create({
+    data: {
+      name: 'Alice',
+      email: 'alice@prisma.io',
+    },
+  });
+  console.log('Usuário criado:', newUser);
+
+  // Buscar todos os usuários
+  console.log('Buscando todos os usuários...');
+  const allUsers = await prisma.user.findMany();
+  console.log('Todos os usuários:', allUsers);
+}
+
+main()
+  .catch((e) => {
+    throw e;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+Para rodar este script, execute no terminal:
+
+Bash
+
+node index.js
