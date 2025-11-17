@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from './services/prisma/prisma.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { PrismaModule } from './services/prisma/prisma.module';
 
+const connection = process.env.DATABASE_URL_MONGODB;
 @Module({
-  imports: [],
+  imports: [MongooseModule.forRoot(connection ? connection : ''), PrismaModule],
   controllers: [],
-  providers: [PrismaService],
+  providers: [],
 })
 export class AppModule {}

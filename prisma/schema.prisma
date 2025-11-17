@@ -11,5 +11,26 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL_PRISMA")
+}
+
+model User {
+  id                String   @id @default(uuid()) @db.Uuid
+  firstName         String   @map("firstname")
+  lastName          String   @map("lastname")
+  email             String   @unique @map("email")
+  password          String   @map("password")
+  bio               String   @map("bio")
+  profilePictureUrl String   @map("profile_picture_url")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  Logins Login[]
+}
+
+model Login {
+  id     String @id @default(uuid()) @db.Uuid
+  token  String @unique @map("token")
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
 }
