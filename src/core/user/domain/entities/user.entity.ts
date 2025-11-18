@@ -66,6 +66,16 @@ export class UserEntity {
     return this._updatedAt;
   }
 
+  public static create(
+    props: Omit<UserProps, 'id' | 'crearedAt' | 'updatedAt'>,
+  ): UserEntity {
+    return new UserEntity(props);
+  }
+
+  public static restore(props: UserProps): UserEntity {
+    return new UserEntity(props);
+  }
+
   changeFirstName(firstName: string) {
     this._firstName = firstName;
   }
@@ -117,5 +127,19 @@ export class UserEntity {
     if (!regex.test(email)) {
       throw new Error('O email é inválido, por favor tente novamente.');
     }
+  }
+
+  public export(): object {
+    return {
+      id: this.id,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      password: this.password,
+      bio: this.bio,
+      profilePictureUrl: this.profilePictureUrl,
+      crearedAt: this.crearedAt,
+      updatedAt: this.updatedAt,
+    };
   }
 }
