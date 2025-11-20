@@ -6,10 +6,11 @@ import {
   IsUrl,
   IsOptional,
   IsBoolean,
-  IsUUID,
 } from 'class-validator';
 
-export class CreatePostDTO implements CreatePostParams {
+export class CreatePostDTO
+  implements Omit<CreatePostParams, 'authorId' | 'postedAt'>
+{
   @IsString({ message: 'create-post/title-must-be-string' })
   @IsNotEmpty({ message: 'create-post/title-required' })
   @MinLength(2, { message: 'create-post/title-too-short' })
@@ -40,8 +41,8 @@ export class CreatePostDTO implements CreatePostParams {
   @IsBoolean({ message: 'create-post/published-must-be-boolean' })
   published: boolean;
 
-  @IsString({ message: 'create-post/authorId-must-be-string' })
-  @IsUUID('4', { message: 'create-post/authorId-must-be-uuid' })
-  @IsNotEmpty({ message: 'create-post/authorId-required' })
-  authorId: string;
+  // @IsString({ message: 'create-post/authorId-must-be-string' })
+  // @IsUUID('4', { message: 'create-post/authorId-must-be-uuid' })
+  // @IsNotEmpty({ message: 'create-post/authorId-required' })
+  // authorId: string;
 }

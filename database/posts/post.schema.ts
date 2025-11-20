@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 export type PostDocument = Post & Document;
 
@@ -21,6 +22,9 @@ export type PostDocument = Post & Document;
   },
 })
 export class Post {
+  @Prop({ type: String, default: uuidv4 })
+  _id: string;
+
   @Prop({ required: true })
   title: string;
 
@@ -39,8 +43,11 @@ export class Post {
   @Prop({ default: false })
   published: boolean;
 
-  @Prop({ required: true })
+  @Prop({ required: true, index: true }) // buscar pelo Id precisa de index para obter a posição
   authorId: string;
+
+  @Prop({ type: Date, default: Date.now })
+  postedAt: Date;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

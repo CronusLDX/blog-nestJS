@@ -6,6 +6,7 @@ export interface CreatePostParams {
   coverImageUrl?: string;
   published?: boolean;
   authorId: string;
+  postedAt: Date;
 }
 
 export interface UpdatePostParams {
@@ -17,4 +18,5 @@ export interface UpdatePostParams {
   coverImageUrl?: string;
   published?: boolean;
   authorId?: string;
+  postedAt?: Date;
 }

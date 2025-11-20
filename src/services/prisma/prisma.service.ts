@@ -1,7 +1,7 @@
-// src/prisma.service.ts
-
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from 'generated/prisma';
+import { PrismaClient } from '@prisma/client';
+
 @Injectable()
 export class PrismaService
   extends PrismaClient

@@ -1,7 +1,9 @@
 import { IsOptional } from 'class-validator';
 import { UpdatePostParams } from '../internal';
 
-export class UpdatePostDTO implements Omit<UpdatePostParams, 'id'> {
+export class UpdatePostDTO
+  implements Omit<UpdatePostParams, 'id' | 'postedAt'>
+{
   @IsOptional()
   title?: string;
 
