@@ -1,38 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from 'database/posts/post.schema';
-import { Model } from 'mongoose';
-import { PrismaService } from 'src/services/prisma/prisma.service';
+import { Model, MongooseError } from 'mongoose';
 import { PostEntity } from '../domain/entities/post.entity';
-import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
-import {
-  ModelAlreadyExistsException,
-  ModelNotFoundException,
-} from '../exceptions';
+
+import { ModelAlreadyExistsException } from '../exceptions';
 
 @Injectable()
 export class PostRepository {
-  constructor(
-    @InjectModel(Post.name) private postModel: Model<PostDocument>,
-    @Inject(PrismaService) private prisma: PrismaService,
-  ) {}
+  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
 
-  async save(
-    data: PostEntity,
-    userToken: string,
-  ): Promise<PostEntity | undefined> {
+  async save(data: PostEntity): Promise<PostEntity | undefined> {
     try {
-      const userSession = await this.prisma.login.findUniqueOrThrow({
-        where: {
-          token: userToken,
-        },
-        select: {
-          userId: true,
-        },
-      });
       const result = await this.postModel.create({
         title: data.title,
         slug: data.slug,
@@ -40,7 +20,7 @@ export class PostRepository {
         content: data.content,
         coverImageUrl: data.coverImageUrl,
         published: data.published,
-        authorId: userSession.userId,
+        authorId: data.authorId,
         postedAt: data.postedAt,
       });
       return PostEntity.restore({
@@ -55,18 +35,31 @@ export class PostRepository {
         postedAt: result.postedAt,
       });
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new ModelNotFoundException(
-            'create-post/user-session-not-found-or-invalid-token',
-          );
-        }
-        if (error.code === 'P2002') {
+      if (error instanceof MongooseError) {
+        if (error.cause === 11000) {
           throw new ModelAlreadyExistsException(
             'create-post/post-already-exists',
           );
         }
       }
+      throw error;
     }
+  }
+
+  async listAll(): Promise<PostEntity[]> {
+    const result = await this.postModel.find().exec();
+    return result.map((post) => {
+      return PostEntity.restore({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImageUrl: post.coverImageUrl,
+        published: post.published,
+        authorId: post.authorId,
+        postedAt: post.postedAt,
+      });
+    });
   }
 }

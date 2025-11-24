@@ -6,13 +6,14 @@ import { PostService } from './services/post.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from '../../../database/posts/post.schema';
 import { PostRepository } from './repositories/post.repository';
+import { LoginModule } from '../login/login.module';
 
 @Module({
   imports: [
     PrismaModule,
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
   ],
-  providers: [PrismaService, PostService, PostRepository],
+  providers: [PrismaService, PostService, PostRepository, LoginModule],
   controllers: [PostController],
   exports: [],
 })
