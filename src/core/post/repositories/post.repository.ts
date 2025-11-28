@@ -1,17 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from 'database/posts/post.schema';
-import { Model, MongooseError } from 'mongoose';
+import { Model } from 'mongoose';
 import { PostEntity } from '../domain/entities/post.entity';
 
-import { ModelAlreadyExistsException } from '../exceptions';
+import {
+  MissingRequiredField,
+  ModelAlreadyExistsException,
+  ModelNotFoundException,
+} from '../exceptions';
 
 @Injectable()
 export class PostRepository {
   constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
 
-  async save(data: PostEntity): Promise<PostEntity | undefined> {
+  async save(data: PostEntity): Promise<PostEntity> {
     try {
       const result = await this.postModel.create({
         title: data.title,
@@ -21,7 +26,8 @@ export class PostRepository {
         coverImageUrl: data.coverImageUrl,
         published: data.published,
         authorId: data.authorId,
-        postedAt: data.postedAt,
+        createdAt: data.createdAt,
+        updateAt: data.updateAt,
       });
       return PostEntity.restore({
         id: result.id,
@@ -32,15 +38,16 @@ export class PostRepository {
         coverImageUrl: result.coverImageUrl,
         published: result.published,
         authorId: result.authorId,
-        postedAt: result.postedAt,
       });
     } catch (error) {
-      if (error instanceof MongooseError) {
-        if (error.cause === 11000) {
-          throw new ModelAlreadyExistsException(
-            'create-post/post-already-exists',
-          );
-        }
+      if (error.code === 11000) {
+        throw new ModelAlreadyExistsException(
+          'create-post/post-already-exists',
+        );
+      }
+
+      if (error.name === 'ValidationError') {
+        throw new MissingRequiredField('create-post/missing-required-field');
       }
       throw error;
     }
@@ -58,8 +65,93 @@ export class PostRepository {
         coverImageUrl: post.coverImageUrl,
         published: post.published,
         authorId: post.authorId,
-        postedAt: post.postedAt,
       });
     });
+  }
+
+  async get(id: string): Promise<PostEntity> {
+    try {
+      const result = await this.postModel.findOne({ id }).exec();
+
+      if (!result) {
+        throw new ModelNotFoundException('get-post/post-not-found');
+      }
+      return PostEntity.restore({
+        id: result.id,
+        title: result.title,
+        slug: result.slug,
+        excerpt: result.excerpt,
+        content: result.content,
+        coverImageUrl: result.coverImageUrl,
+        published: result.published,
+        authorId: result.authorId,
+      });
+    } catch (error) {
+      if (error instanceof ModelNotFoundException) {
+        throw error;
+      }
+      if (error.name === 'CastError') {
+        throw new ModelNotFoundException('get-post/post-not-found');
+      }
+      throw error;
+    }
+  }
+
+  async update(data: PostEntity): Promise<PostEntity> {
+    try {
+      const result = await this.postModel
+        .findOneAndUpdate(
+          { id: data.id },
+          {
+            title: data.title,
+            slug: data.slug,
+            excerpt: data.excerpt,
+            content: data.content,
+            coverImageUrl: data.coverImageUrl,
+            published: data.published,
+            authorId: data.authorId,
+          },
+        )
+        .exec();
+
+      if (!result) {
+        throw new ModelNotFoundException('update-post/post-not-found');
+      }
+      return PostEntity.restore({
+        id: result.id,
+        title: result.title,
+        slug: result.slug,
+        excerpt: result.excerpt,
+        content: result.content,
+        coverImageUrl: result.coverImageUrl,
+        published: result.published,
+        authorId: result.authorId,
+      });
+    } catch (error) {
+      if (error instanceof ModelNotFoundException) {
+        throw error;
+      }
+      if (error === 'CastError') {
+        throw new ModelNotFoundException('update-post/post-not-found');
+      }
+      if (error.name === 'ValidationError') {
+        throw new MissingRequiredField('create-post/missing-required-field');
+      }
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    try {
+      await this.postModel.deleteOne({ id }).exec();
+    } catch (error) {
+      if (error instanceof ModelNotFoundException) {
+        throw error;
+      }
+      if (error.name === 'CastError') {
+        throw new ModelNotFoundException('get-post/post-not-found');
+      }
+      throw error;
+    }
   }
 }

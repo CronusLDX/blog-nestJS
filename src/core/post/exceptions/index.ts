@@ -8,3 +8,21 @@ export class ModelAlreadyExistsException extends Error {
     super(message);
   }
 }
+
+export class MissingRequiredField extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ForbbidenException extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class InternalServerError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}

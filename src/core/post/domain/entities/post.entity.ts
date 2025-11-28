@@ -9,7 +9,6 @@ interface PostProps {
   coverImageUrl?: string;
   published: boolean;
   authorId: string;
-  postedAt: Date;
   createdAt?: Date;
   updateAt?: Date;
 }
@@ -23,7 +22,6 @@ export class PostEntity {
   private _coverImageUrl?: string;
   private _published: boolean;
   private _authorId: string;
-  private _postedAt: Date;
   private _createdAt?: Date;
   private _updateAt?: Date;
 
@@ -36,7 +34,6 @@ export class PostEntity {
     this._coverImageUrl = props.coverImageUrl;
     this._published = props.published;
     this._authorId = props.authorId;
-    this._postedAt = props.postedAt;
     this._createdAt = props.createdAt || new Date();
     this._updateAt = props.updateAt || new Date();
   }
@@ -52,7 +49,6 @@ export class PostEntity {
       coverImageUrl: data.coverImageUrl,
       published: data.published,
       authorId: data.authorId,
-      postedAt: data.postedAt,
     });
   }
 
@@ -66,7 +62,6 @@ export class PostEntity {
       coverImageUrl: data.coverImageUrl,
       published: data.published,
       authorId: data.authorId,
-      postedAt: data.postedAt,
       createdAt: data.createdAt,
       updateAt: data.updateAt,
     });
@@ -107,9 +102,6 @@ export class PostEntity {
   get updateAt(): Date | undefined {
     return this._updateAt;
   }
-  get postedAt(): Date {
-    return this._postedAt;
-  }
 
   changeTitle(title: string): void {
     this._title = title;
@@ -146,7 +138,6 @@ export class PostEntity {
       coverImageUrl: this.coverImageUrl,
       published: this.published,
       authorId: this.authorId,
-      postedAt: this._postedAt,
       createdAt: this.createdAt,
       updateAt: this.updateAt,
     };

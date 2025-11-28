@@ -7,6 +7,6 @@ import { LoginService } from './services/login.service';
   imports: [],
   controllers: [],
   providers: [PrismaService, LoginRepository, LoginService],
-  exports: [LoginRepository],
+  exports: [LoginRepository, LoginService],
 })
 export class LoginModule {}

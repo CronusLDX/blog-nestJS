@@ -8,9 +8,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 
-export class CreatePostDTO
-  implements Omit<CreatePostParams, 'authorId' | 'postedAt'>
-{
+export class CreatePostDTO implements Omit<CreatePostParams, 'authorId'> {
   @IsString({ message: 'create-post/title-must-be-string' })
   @IsNotEmpty({ message: 'create-post/title-required' })
   @MinLength(2, { message: 'create-post/title-too-short' })

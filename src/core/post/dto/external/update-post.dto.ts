@@ -2,7 +2,7 @@ import { IsOptional } from 'class-validator';
 import { UpdatePostParams } from '../internal';
 
 export class UpdatePostDTO
-  implements Omit<UpdatePostParams, 'id' | 'postedAt'>
+  implements Omit<UpdatePostParams, 'id' | 'authorId'>
 {
   @IsOptional()
   title?: string;
@@ -21,7 +21,4 @@ export class UpdatePostDTO
 
   @IsOptional()
   published?: boolean;
-
-  @IsOptional()
-  authorId?: string;
 }
