@@ -8,6 +8,7 @@ import {
   Delete,
   Body,
   Param,
+  Headers,
 } from '@nestjs/common';
 import { PostService } from '../services/post.service';
 import { CreatePostDTO } from '../dto/external/create-post.dto';
@@ -26,7 +27,10 @@ export class PostController {
 
   @Post('')
   @HttpCode(201)
-  async createPost(@Body() post: CreatePostDTO, userToken: string) {
+  async createPost(
+    @Body() post: CreatePostDTO,
+    @Headers('authorization') userToken: string,
+  ) {
     try {
       const result = await this.postService.create(
         {
@@ -63,7 +67,7 @@ export class PostController {
   async updatePost(
     @Body() post: UpdatePostDTO,
     @Param('postId') postId: string,
-    userToken: string,
+    @Headers('authorization') userToken: string,
   ) {
     try {
       const result = await this.postService.update(
@@ -97,7 +101,10 @@ export class PostController {
 
   @Get(':postId')
   @HttpCode(200)
-  async getPost(@Param('postId') postId: string, userToken: string) {
+  async getPost(
+    @Param('postId') postId: string,
+    @Headers('authorization') userToken: string,
+  ) {
     try {
       const result = await this.postService.get(postId, userToken);
       return result.export();
@@ -134,7 +141,10 @@ export class PostController {
 
   @Delete(':postId')
   @HttpCode(204)
-  async deletePost(@Param('postId') postId: string, userToken: string) {
+  async deletePost(
+    @Param('postId') postId: string,
+    @Headers('authorization') userToken: string,
+  ) {
     try {
       await this.postService.delete(postId, userToken);
     } catch (error) {

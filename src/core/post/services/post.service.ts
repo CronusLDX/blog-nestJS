@@ -46,7 +46,7 @@ export class PostService {
 
   async update(data: UpdatePostParams, userToken: string): Promise<PostEntity> {
     const userId = await this.loginService.UserAuthentication(userToken);
-    if (userId !== data.authorId) {
+    if (!userId) {
       throw new ForbbidenException('update-post/user-not-authorized');
     }
     const post = await this.postRepository.get(data.id ?? '');
