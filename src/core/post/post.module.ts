@@ -12,6 +12,7 @@ import { LoginModule } from '../login/login.module';
   imports: [
     PrismaModule,
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    LoginModule,
   ],
   providers: [PrismaService, PostService, PostRepository, LoginModule],
   controllers: [PostController],
