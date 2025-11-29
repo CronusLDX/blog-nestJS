@@ -7,7 +7,4 @@ export class LoginService {
   constructor(
     @Inject(LoginRepository) private loginRepository: ILoginRepository<string>,
   ) {}
-  async UserAuthentication(userToken: string) {
-    return await this.loginRepository.UserAuthentication(userToken);
-  }
 }

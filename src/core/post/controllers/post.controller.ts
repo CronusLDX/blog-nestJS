@@ -9,6 +9,7 @@ import {
   Body,
   Param,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { PostService } from '../services/post.service';
 import { CreatePostDTO } from '../dto/external/create-post.dto';
@@ -20,6 +21,8 @@ import {
   ModelNotFoundException,
 } from '../exceptions';
 import { UpdatePostDTO } from '../dto/external/update-post.dto';
+import { JwtAuthGuard } from 'src/core/auth/guard/jwt-guard.guard';
+import { CurrentUser } from 'src/core/auth/decorator/current-user.decorator';
 
 @Controller('posts')
 export class PostController {
@@ -27,10 +30,8 @@ export class PostController {
 
   @Post('')
   @HttpCode(201)
-  async createPost(
-    @Body() post: CreatePostDTO,
-    @Headers('authorization') userToken: string,
-  ) {
+  @UseGuards(JwtAuthGuard)
+  async createPost(@Body() post: CreatePostDTO, @CurrentUser() userId: string) {
     try {
       const result = await this.postService.create(
         {
@@ -41,7 +42,7 @@ export class PostController {
           coverImageUrl: post.coverImageUrl,
           published: post.published,
         },
-        userToken,
+        userId,
       );
       return result.export();
     } catch (error) {
@@ -64,10 +65,11 @@ export class PostController {
 
   @Put(':postId')
   @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
   async updatePost(
     @Body() post: UpdatePostDTO,
     @Param('postId') postId: string,
-    @Headers('authorization') userToken: string,
+    @CurrentUser() userId: string,
   ) {
     try {
       const result = await this.postService.update(
@@ -80,7 +82,7 @@ export class PostController {
           coverImageUrl: post.coverImageUrl,
           published: post.published,
         },
-        userToken,
+        userId,
       );
       return result.export();
     } catch (error) {
@@ -99,33 +101,40 @@ export class PostController {
     }
   }
 
-  @Get(':postId')
+  @Get('user/all')
   @HttpCode(200)
-  async getPost(
-    @Param('postId') postId: string,
-    @Headers('authorization') userToken: string,
-  ) {
+  @UseGuards(JwtAuthGuard)
+  async getAllUserPosts(@CurrentUser() userId: string) {
     try {
-      const result = await this.postService.get(postId, userToken);
-      return result.export();
+      const result = await this.postService.listAllUserPosts(userId);
+      return result.map((post) => post.export());
     } catch (error) {
-      if (error instanceof ModelNotFoundException) {
-        throw new ModelNotFoundException('get-post/post-not-found');
-      }
-      if (error instanceof ForbbidenException) {
-        throw new ForbbidenException('create-post/user-not-authorized');
-      }
       throw new InternalServerError(
         'create-post/internal-server-error\n' + error,
       );
     }
   }
+
   @Get('')
   @HttpCode(200)
   async getPosts() {
     try {
       const result = await this.postService.listAll();
       return result.map((post) => post.export());
+    } catch (error) {
+      throw new InternalServerError(
+        'create-post/internal-server-error\n' + error,
+      );
+    }
+  }
+
+  // leitura de um unico post ou rascunhos não publicados
+  @Get(':postId')
+  @HttpCode(200)
+  async getPost(@Param('postId') postId: string) {
+    try {
+      const result = await this.postService.get(postId);
+      return result.export();
     } catch (error) {
       if (error instanceof ModelNotFoundException) {
         throw new ModelNotFoundException('get-post/post-not-found');
@@ -141,12 +150,13 @@ export class PostController {
 
   @Delete(':postId')
   @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
   async deletePost(
     @Param('postId') postId: string,
-    @Headers('authorization') userToken: string,
+    @CurrentUser() userId: string,
   ) {
     try {
-      await this.postService.delete(postId, userToken);
+      await this.postService.delete(postId, userId);
     } catch (error) {
       if (error instanceof ModelNotFoundException) {
         throw new ModelNotFoundException('delete-post/post-not-found');

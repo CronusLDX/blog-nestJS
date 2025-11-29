@@ -1,48 +1,82 @@
 import { v4 as uuidv4 } from 'uuid';
 interface LoginProps {
   id?: string;
-  token: string;
+  hashedToken: string;
   userId: string;
+  revoked: boolean;
+  expiresAt: Date;
+  createdAt?: Date;
 }
 
 export class LoginEntity {
   readonly id: string;
-  private _token: string;
+  private _hashedToken: string;
   private _userId: string;
+  private _revoked: boolean;
+  private _expiresAt: Date;
+  private _createdAt?: Date;
 
   protected constructor(props: LoginProps) {
     this.id = props.id ?? uuidv4();
-    this._token = props.token;
+    this._hashedToken = props.hashedToken;
     this._userId = props.userId;
+    this._revoked = props.revoked;
+    this._expiresAt = props.expiresAt;
+    this._createdAt = props.createdAt || new Date();
   }
 
-  get token(): string {
-    return this._token;
+  get hashedToken(): string {
+    return this._hashedToken;
   }
 
   get userId(): string {
     return this._userId;
   }
 
-  public static create(
-    props: Omit<LoginProps, 'id' | 'createdAt' | 'updatedAt'>,
-  ) {
-    return new LoginEntity(props);
+  get revoked(): boolean {
+    return this._revoked;
+  }
+
+  get expiresAt(): Date {
+    return this._expiresAt;
+  }
+
+  get createdAt(): Date | undefined {
+    return this._createdAt;
+  }
+
+  public static create(props: Omit<LoginProps, 'id' | 'createdAt'>) {
+    return new LoginEntity({
+      hashedToken: props.hashedToken,
+      userId: props.userId,
+      revoked: props.revoked,
+      expiresAt: props.expiresAt,
+    });
   }
 
   public static restore(props: LoginProps): LoginEntity {
     return new LoginEntity(props);
   }
 
-  changeToken(token: string) {
-    this._token = token;
+  changeHashedToken(hashedToken: string): void {
+    this._hashedToken = hashedToken;
+  }
+  changeExpiresAt(expiresAt: Date): void {
+    this._expiresAt = expiresAt;
+  }
+
+  changeRevoked(revoked: boolean): void {
+    this._revoked = revoked;
   }
 
   public export(): object {
     return {
       id: this.id,
-      token: this.token,
+      hashedToken: this.hashedToken,
       userId: this.userId,
+      revoked: this.revoked,
+      expiresAt: this.expiresAt,
+      createdAt: this.createdAt,
     };
   }
 }

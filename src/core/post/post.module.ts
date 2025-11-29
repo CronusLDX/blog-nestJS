@@ -7,12 +7,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from '../../../database/posts/post.schema';
 import { PostRepository } from './repositories/post.repository';
 import { LoginModule } from '../login/login.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     PrismaModule,
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
     LoginModule,
+    AuthModule,
   ],
   providers: [PrismaService, PostService, PostRepository, LoginModule],
   controllers: [PostController],

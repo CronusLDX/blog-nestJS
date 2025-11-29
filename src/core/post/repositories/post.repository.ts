@@ -154,4 +154,20 @@ export class PostRepository {
       throw error;
     }
   }
+
+  async listAllUserPosts(userId: string): Promise<PostEntity[]> {
+    const result = await this.postModel.find({ authorId: userId }).exec();
+    return result.map((post) => {
+      return PostEntity.restore({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImageUrl: post.coverImageUrl,
+        published: post.published,
+        authorId: post.authorId,
+      });
+    });
+  }
 }

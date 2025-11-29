@@ -28,3 +28,9 @@ export class InternalServerError extends HttpException {
     super(message, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
+
+export class UserNotFundException extends HttpException {
+  constructor(message: string) {
+    super(message, HttpStatus.NOT_FOUND);
+  }
+}

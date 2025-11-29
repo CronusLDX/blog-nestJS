@@ -14,6 +14,7 @@ export class LoginParamsDTO implements LoginParams {
   email: string;
 
   @Matches(
+    // 1 letra maiúscula, 1 número , 1 caractere especial e no mínimo 8 caracteres
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/,
     {
       message: 'login-params/password-invalid',
