@@ -10,10 +10,11 @@ import {
   MissingRequiredField,
   ModelAlreadyExistsException,
   ModelNotFoundException,
-} from '../exceptions';
+} from '../../login/exceptions';
+import { IPostRepository } from '.';
 
 @Injectable()
-export class PostRepository {
+export class PostRepository implements IPostRepository<PostEntity> {
   constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
 
   async save(data: PostEntity): Promise<PostEntity> {

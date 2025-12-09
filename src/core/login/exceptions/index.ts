@@ -34,3 +34,9 @@ export class UserNotFundException extends HttpException {
     super(message, HttpStatus.NOT_FOUND);
   }
 }
+
+export class InvalidCredentialsException extends HttpException {
+  constructor(message: string) {
+    super(message, HttpStatus.UNAUTHORIZED);
+  }
+}

@@ -57,10 +57,6 @@ export class LoginEntity {
   public static restore(props: LoginProps): LoginEntity {
     return new LoginEntity(props);
   }
-
-  changeHashedToken(hashedToken: string): void {
-    this._hashedToken = hashedToken;
-  }
   changeExpiresAt(expiresAt: Date): void {
     this._expiresAt = expiresAt;
   }

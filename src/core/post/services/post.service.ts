@@ -3,7 +3,7 @@ import { PostRepository } from '../repositories/post.repository';
 import type { IPostRepository } from '../repositories';
 import { PostEntity } from '../domain/entities/post.entity';
 import { CreatePostParams, UpdatePostParams } from '../dto/internal';
-import { ForbbidenException } from '../exceptions';
+import { ForbbidenException } from '../../login/exceptions';
 @Injectable()
 export class PostService {
   constructor(

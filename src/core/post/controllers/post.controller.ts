@@ -19,7 +19,7 @@ import {
   MissingRequiredField,
   ModelAlreadyExistsException,
   ModelNotFoundException,
-} from '../exceptions';
+} from '../../login/exceptions';
 import { UpdatePostDTO } from '../dto/external/update-post.dto';
 import { JwtAuthGuard } from 'src/core/auth/guard/jwt-guard.guard';
 import { CurrentUser } from 'src/core/auth/decorator/current-user.decorator';
@@ -105,14 +105,8 @@ export class PostController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   async getAllUserPosts(@CurrentUser() userId: string) {
-    try {
-      const result = await this.postService.listAllUserPosts(userId);
-      return result.map((post) => post.export());
-    } catch (error) {
-      throw new InternalServerError(
-        'create-post/internal-server-error\n' + error,
-      );
-    }
+    const result = await this.postService.listAllUserPosts(userId);
+    return result.map((post) => post.export());
   }
 
   @Get('')
